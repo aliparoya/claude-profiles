@@ -20,7 +20,7 @@
     "@docusaurus/plugin-client-redirects": "3.10.0",
     "@docusaurus/plugin-ideal-image": "3.10.1",
     "@docusaurus/preset-classic": "3.10.0",
-    "@docusaurus/theme-mermaid": "3.10.0",
+    "@docusaurus/theme-mermaid": "3.10.1",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@fontsource-variable/public-sans": "^5.2.7",
