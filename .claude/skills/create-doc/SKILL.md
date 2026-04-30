@@ -1,11 +1,43 @@
 ---
 name: create-doc
-description: Grounding document for drafting a new doc page. Use whenever the user says /create-doc, asks to draft or write a page, or wants to add a new doc to docs/. The skill points at the style guide for voice and tone, names the components and plugins already wired into the site, and flags the operational gotchas that bite. It does not prescribe a structure for the page; that comes from the topic.
+description: Grounding document for drafting a new doc page. Use whenever the user says /create-doc, asks to draft or write a page, or wants to add a new doc to docs/. The skill names the site's editorial standard, points at the style guide for voice and tone, lists the components and plugins already wired in, names the four canonical evidence sources for argumentative claims, and flags the operational gotchas that bite. It does not prescribe a structure for the page; that comes from the topic.
 ---
 
 # create-doc
 
 A grounding document for adding a doc page to this site. Read it once at the start of a drafting session, then write the page in whatever shape the topic actually wants.
+
+## What this site is doing
+
+The site is an opinionated argument, not neutral reference docs. It argues that engineers ramping on Claude Code should use a small set of profile aliases that *replace* the harness system prompt and *defer* tool loading, instead of layering plugins, skills, and MCP servers on top of opaque defaults. Every page either makes that argument or shows the working setup that backs it.
+
+Pages live under `docs/claude-profiles/` in this order: landing (the claim), context-stack (the diagnosis), measure (the proof), profile-structure (the prescription), build-your-own (the assembly guide), reference-setup (the working setup). New pages slot into that arc; if a page does not fit, ask the user where it belongs before writing.
+
+## Editorial standard
+
+Every argumentative page on this site needs four moves, in order:
+
+1. **Claim**: the specific thing being asserted. State it; do not gesture at it.
+2. **Measured artifact**: a number, a captured output, a diff. Numbers come from the four scripts named below. No vague cost claims ("a few thousand tokens", "the savings are real") without a captured number or a link to the page that has one.
+3. **Interpretation**: what the number means and why it matters. The artifact does not speak for itself.
+4. **Action**: what the reader does next. Run a command, read another page, change a config.
+
+Pages that are pure reference (like `reference-setup`) can skip step 4 if there is nothing to do.
+
+## Canonical evidence sources
+
+Cost and behavior claims back onto one of four `ccp` subcommands:
+
+|claim about|capture with|
+|-|-|
+|harness system prompt size and contents|`ccp extract-baseline -o baseline.txt`|
+|the full first-turn request your real session sends|`ccp capture-active -o active.json`|
+|what changed between two captures (sections, tools, total tokens)|`ccp prompt-diff A B`|
+|per-tool schema cost and tool-search status|`ccp tools-audit active.json`|
+
+The reference implementations live in `packages/ccp/lib/`. Outputs live in `.local/captures/` and are not committed; cite excerpts in pages, do not commit raw captures.
+
+When tempted to write "thousands of tokens" or "the savings are real", run the relevant command and quote the output instead.
 
 ## Where the rules live
 

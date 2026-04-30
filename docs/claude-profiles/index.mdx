@@ -1,0 +1,24 @@
+---
+title: Claude Profiles
+description: A small site arguing for opinionated profile management for Claude Code.
+slug: /
+sidebar_position: 1
+---
+
+# Claude Profiles
+
+You can offload code work and even thinking to an agent. You cannot offload understanding what's loaded into its context.
+
+A Claude Code session's behavior is the sum of a stack: the harness system prompt, API-side injections, the difference between claude.ai and claude-code, MCPs, skills, CLAUDE.md, and plugins. Plugins themselves can smuggle in skills, hooks, and agents. When something goes sideways, the cause is usually in a layer you didn't know was loaded.
+
+This site argues for a small set of shell aliases that *replace* the system prompt instead of layering on top, and defer MCP and tool loading, so each context starts from a known baseline you control. A handful of aliases you wrote and understand beats thirty plugin and skill definitions scattered across project folders.
+
+The argument has a number under it. The harness ships about 6,400 tokens of baseline system prompt; the [reference setup](./reference-setup) replaces it with 4,500 tokens. With `ENABLE_TOOL_SEARCH=true`, tool schemas drop from "every MCP tool upfront" to nine, totalling another ~9,100 tokens. About 15,800 input tokens are spent before the user says a word. That floor is paid every turn, every session, every account. [Measure your setup](./measure) walks through the captures.
+
+## Who this is for
+
+Engineers ramping up on Claude Code who are starting to install plugins, skills, and MCPs without a clear picture of what each one injects. If you're running on AWS Bedrock or any usage-priced API, that 15,800-token floor is real money on a real ledger.
+
+## How to read this
+
+[The context stack](./context-stack) is the diagnosis: what's actually in your window before your first prompt. [Measure your setup](./measure) is the proof: capture the harness baseline, capture your real session, diff them. [Profile structure](./profile-structure) is the prescription. [Build your own](./build-your-own) walks through assembly. [Reference setup](./reference-setup) shows the working configuration this site runs against.

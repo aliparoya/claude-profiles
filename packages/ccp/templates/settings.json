@@ -1,0 +1,13 @@
+{
+  "env": {
+    "CLAUDE_CODE_USE_BEDROCK": "1",
+    "ENABLE_TOOL_SEARCH": "true",
+    "CLAUDE_CODE_AUTO_COMPACT_WINDOW": "400000"
+  },
+  "permissions": {
+    "defaultMode": "default"
+  },
+  "hooks": {},
+  "enabledPlugins": {},
+  "promptSuggestionEnabled": false
+}

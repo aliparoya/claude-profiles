@@ -1,0 +1,99 @@
+---
+title: Reference setup
+description: The actual ccp profile system as currently configured. Read this if you want to copy a working setup wholesale.
+sidebar_position: 1
+---
+
+# Reference setup
+
+The argument is general; the setup it describes is specific. This page is the working configuration `ccp` runs against. Copy what fits; the launcher and templates ship in [`packages/ccp`](https://github.com/your-org/your-repo/tree/main/packages/ccp).
+
+## Profiles
+
+|name|description|model|effort|
+|-|-|-|-|
+|`default`|Baseline with anti-accumulation rules and safety gates|(inherit)|(inherit)|
+|`max`|Max effort. Deeper reasoning, higher token spend|(inherit)|`max`|
+|`fast`|Low effort. Quick, terse responses for cost-sensitive work|(inherit)|`low`|
+|`cody`|Code writer. Tight, simple, idiomatic. Matches existing style|(inherit)|(inherit)|
+|`maggy`|Tech-lead persona. Breaks down work and delegates to subagents|Opus 4.7 (1M)|`max`|
+|`pluto`|Planning agent. Investigates before writing code; hands off briefs|Opus|`xhigh`|
+|`raw`|Minimal system prompt. No boilerplate, maximum coding focus|(inherit)|(inherit)|
+
+`(inherit)` means the field is unset in the profile and the CLI falls back to its default (model from settings or last-used; effort level unset).
+
+`raw` is the only profile that points at `~/.claude-shared/minimal-prompt.txt` (~320 tokens) instead of the full replacement at `~/.claude-shared/system-prompt.txt` (~4,500 tokens). Every other profile uses the same base prompt and only differs in its appended body and env.
+
+## Shared configuration
+
+`~/.claude-shared/settings.json` is the single source of truth for everything that should apply to every session. Profile env blocks layer on top; profile flags override where applicable.
+
+### Environment
+
+|key|value|effect|
+|-|-|-|
+|`CLAUDE_CODE_USE_BEDROCK`|`1`|Route all requests through AWS Bedrock instead of the Anthropic API|
+|`AWS_REGION`|(your region)|Bedrock region. Inherited from the shell if already set|
+|`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS`|`1`|Enable multi-agent team coordination via the Agent tool|
+|`ANTHROPIC_DEFAULT_HAIKU_MODEL`|`claude-sonnet-4-6`|Replace the default Haiku slot with Sonnet 4.6 for subagents and background work|
+|`CLAUDE_CODE_AUTO_COMPACT_WINDOW`|`400000`|Run conversation compaction at 400K tokens|
+|`ENABLE_TOOL_SEARCH`|`true`|Defer MCP tool schemas. Tool names load at startup, full schemas load on demand|
+
+### Permissions
+
+|key|value|effect|
+|-|-|-|
+|`defaultMode`|`dontAsk`|Auto-approve tool calls without prompting|
+|`skipDangerousModePermissionPrompt`|`true`|Suppress the dangerous-mode confirmation banner|
+
+The launcher also passes `--dangerously-skip-permissions` so every session runs without permission prompts. Pair this with sandboxed working directories or use a stricter profile when needed.
+
+### Plugins
+
+```text
+code-simplifier@claude-plugins-official
+agent-sdk-dev@claude-plugins-official
+rust-analyzer-lsp@claude-plugins-official
+pyright-lsp@claude-plugins-official
+typescript-lsp@claude-plugins-official
+toolkit@anvil-toolkit
+cortex-workflow@anvil-toolkit
+example-skills@anthropic-agent-skills
+codex@openai-codex
+```
+
+Each plugin pays its own token tax on every session. Audit yours with `ccp tools-audit` and `/mcp` before installing more.
+
+### Custom statusline
+
+```json
+"statusLine": {
+  "type": "command",
+  "command": "$HOME/.claude-shared/bin/statusline-dispatch"
+}
+```
+
+Renders as `ccp <profile> | <model>[ 1M] [| <effort>] | branch | path | C/S/W/E ...`.
+
+### Disabled
+
+|key|value|effect|
+|-|-|-|
+|`promptSuggestionEnabled`|`false`|No auto-suggested prompts|
+|`hooks`|`{}`|No shell hooks fire on tool events|
+
+## File layout
+
+```text
+~/.claude-shared/
+├── settings.json          # shared across every profile
+├── mcp.json               # shared MCP servers
+├── system-prompt.txt      # the replacement system prompt (4.5K tokens)
+├── baseline-prompt.txt    # captured harness baseline, kept for reference and diffs
+├── minimal-prompt.txt     # used by `raw` (~320 tokens)
+└── profiles/
+    ├── default.md  max.md     fast.md
+    └── cody.md     maggy.md   pluto.md   raw.md
+```
+
+`ccp` itself lives wherever npm installed it. `ccp init` writes this layout into `~/.claude-shared/` (or any path you pass to `--to`). Adding a new profile is one new file in `profiles/`, no code change.

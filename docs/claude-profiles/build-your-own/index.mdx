@@ -1,0 +1,152 @@
+---
+title: Build your own
+sidebar_position: 1
+---
+
+# Build your own
+
+![Build your own](/img/generated/build-your-own-hero.jpg)
+
+Assembly guide for a profile system on your machine. The pieces:
+
+1. A directory that holds your profiles, system prompt, and shared config.
+2. A launcher (a shell function or script) that resolves a profile name and execs `claude` with the right flags.
+3. A choice about which env vars to set, and which to leave to the harness defaults.
+4. Optionally, a custom statusline so the active profile is always visible.
+
+None of the choices are obligatory. This is one path that's worked, generalized.
+
+## Use ccp or roll your own
+
+If you want the canonical install, [`packages/ccp`](https://github.com/your-org/your-repo/tree/main/packages/ccp) ships the launcher, the capture utilities, starter profiles, and an `init` command:
+
+```bash
+npm install -g @your-org/ccp
+ccp init                       # writes ~/.claude-shared
+ccp                            # default profile
+ccp max -- -p "summarize"      # named profile, prompt forwarded to claude
+```
+
+The launcher (`packages/ccp/lib/launcher.sh`) is the reference implementation for everything below. It's about 140 lines: profile resolution, frontmatter parsing, env export, prompt-file plumbing, and a few details a teaching skeleton skips (typo rejection, `--mcp-config` wiring, `CLAUDE_PROFILE` export, the `ANTHROPIC_API_KEY` unset that's needed when Bedrock auth lives next to a stray Anthropic key in your shell).
+
+The rest of this page rebuilds a smaller version from scratch so the moving parts are visible. If you'd rather just use `ccp` and skip the assembly, jump to [reference setup](../reference-setup) for the working profiles and shared config.
+
+## Directory layout
+
+A directory holding everything the launcher needs. One sane shape:
+
+```text
+~/.your-profiles/
+├── settings.json          # shared across every profile
+├── mcp.json               # shared MCP config
+├── system-prompt.txt      # the replacement system prompt
+├── minimal-prompt.txt     # optional shorter prompt for raw profiles
+├── profiles/
+│   ├── default.md
+│   ├── max.md
+│   └── fast.md
+└── bin/
+    └── launcher           # the script the alias execs
+```
+
+A single directory works because it's one thing to back up and version. Adding a new profile is one new file in `profiles/`, no code change.
+
+The exact path doesn't matter. Pick something stable and commit to it. `~/.config/claude/`, `~/dotfiles/claude/`, and `~/.claude-shared/` all work.
+
+## Writing the launcher
+
+A small shell function with three responsibilities: resolve a profile name to a file, parse its frontmatter and body, then exec `claude` with the right flags and env.
+
+A skeleton (requires `yq` for YAML parsing):
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+PROFILES_DIR="${PROFILES_DIR:-$HOME/.your-profiles/profiles}"
+profile="${1:-default}"
+shift || true
+
+profile_file="$PROFILES_DIR/$profile.md"
+[[ -f "$profile_file" ]] || { echo "no profile: $profile" >&2; exit 1; }
+
+model=$(yq '.model // ""' "$profile_file")
+prompt_file=$(yq '.system_prompt_file // ""' "$profile_file")
+body=$(awk '/^---$/{c++; next} c>=2{print}' "$profile_file")
+
+# Export env block.
+while IFS='=' read -r key val; do
+  [[ -n "$key" ]] && export "$key=$val"
+done < <(yq -o=props '.env // {}' "$profile_file")
+
+# Expand leading tilde in paths.
+prompt_file="${prompt_file/#\~/$HOME}"
+
+exec claude \
+  ${model:+--model "$model"} \
+  ${prompt_file:+--system-prompt-file "$prompt_file"} \
+  ${body:+--append-system-prompt "$body"} \
+  "$@"
+```
+
+Wire it as an alias in your shell rc:
+
+```bash
+alias cc='~/.your-profiles/bin/launcher'
+```
+
+Now `cc max -- -p "summarize this"` resolves the `max` profile and forwards everything after `--` to claude.
+
+The skeleton skips a few things. It doesn't typo-check the profile name (so `cc maxx` silently runs the default profile with `maxx` forwarded as a prompt, instead of failing clearly). It doesn't unset a stray `ANTHROPIC_API_KEY` before exec, which on a Bedrock setup will route the call through the Anthropic API instead. It doesn't pass `--mcp-config` for a shared MCP catalog. It doesn't export `CLAUDE_PROFILE` for the statusline. And the env loop only handles single-line scalars; YAML supports multi-line values, this doesn't. The reference launcher in [`packages/ccp/lib/launcher.sh`](https://github.com/your-org/your-repo/tree/main/packages/ccp/lib/launcher.sh) handles all of these in about 140 lines.
+
+If you can't add a yq dependency, swap the parsing to `awk`:
+
+```bash
+frontmatter=$(awk '/^---$/{c++; next} c==1{print}' "$profile_file")
+model=$(printf '%s\n' "$frontmatter" | awk '/^model:/ {print $2}')
+prompt_file=$(printf '%s\n' "$frontmatter" | awk '/^system_prompt_file:/ {print $2}')
+```
+
+Messier, but no dependency.
+
+## Picking env vars
+
+The harness reads a handful of env vars at startup. Worth a deliberate choice rather than copying someone else's config.
+
+### Routing
+
+|var|effect|when to set|
+|-|-|-|
+|`CLAUDE_CODE_USE_BEDROCK=1`|Route through AWS Bedrock|If your billing flows through AWS|
+|`AWS_REGION`|Bedrock region|Inherits from the shell if already set|
+
+### Cost levers
+
+|var|effect|when to set|
+|-|-|-|
+|`ENABLE_TOOL_SEARCH=true`|Defer MCP tool schemas until invocation|If you have any non-trivial MCP setup|
+|`CLAUDE_CODE_AUTO_COMPACT_WINDOW=400000`|Trigger compaction near 400K tokens|If you run long sessions|
+|`CLAUDE_CODE_EFFORT_LEVEL`|`low`, `default`, `max`, `xhigh`|Per profile, depending on what kind of work it's for|
+
+### Defaults
+
+|var|effect|when to set|
+|-|-|-|
+|`ANTHROPIC_DEFAULT_HAIKU_MODEL`|Replace the Haiku slot used for subagents|If you want subagents on a beefier model|
+
+These are the levers. None are required. Set what you understand and leave the rest to the harness defaults.
+
+## Statusline
+
+Optional. The harness can render a status line below the prompt with anything a script outputs.
+
+```json
+"statusLine": {
+  "type": "command",
+  "command": "$HOME/.your-profiles/bin/statusline"
+}
+```
+
+The `command` is any executable that prints a single line on stdout. Useful pieces to include: active profile name, model in use, effort level, current branch, working directory, session token usage.
+
+In a multi-profile setup, "which profile am I in" is a real question. A statusline answers it without `/status`. Cheap insurance against running a max-effort prompt when you meant fast.
