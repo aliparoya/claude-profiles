@@ -17,7 +17,7 @@ set shell := ["bash", "-euo", "pipefail", "-c"]
 
 pids_dir := ".local/pids"
 logs_dir := ".local/logs"
-dev_port := "3000"
+dev_port := "3030"
 
 # List recipes
 default:
