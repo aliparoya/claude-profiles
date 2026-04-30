@@ -9,11 +9,11 @@ A grounding document for adding a doc page to this site. Read it once at the sta
 
 ## Where the rules live
 
-- **Voice and tone**: `docs/style-guide/writing.mdx`. Hard rules: no em dashes, straight quotes, sentence case headings, code references take a file and line number. The full taxonomy of AI-writing patterns to avoid lives there. Run a draft past the patterns before handing it back.
-- **Brand and imagery**: `docs/style-guide/brand.mdx` and `docs/style-guide/images.mdx`. Imagery is optional, not required.
-- **MDX patterns**: `docs/style-guide/mdx-reference.mdx`. Copy-paste snippets for slide decks, mermaid, KaTeX, admonitions, and responsive images.
-- **Image prompting**: `docs/style-guide/image-prompts.mdx`, plus the `dcli image generate` command for producing hero or inline images when one earns its space.
-- **Diagrams**: `docs/style-guide/diagrams.mdx` for when a diagram is the right shape and what it should look like.
+- **Voice and tone**: `style-guide/writing.mdx`. Hard rules: no em dashes, straight quotes, sentence case headings, code references take a file and line number. The full taxonomy of AI-writing patterns to avoid lives there. Run a draft past the patterns before handing it back.
+- **Brand and imagery**: `style-guide/brand.mdx` and `style-guide/images.mdx`. Imagery is optional, not required.
+- **MDX patterns**: `style-guide/mdx-reference.mdx`. Copy-paste snippets for slide decks, mermaid, KaTeX, admonitions, and responsive images.
+- **Image prompting**: `style-guide/image-prompts.mdx`, plus the `dcli image generate` command for producing hero or inline images when one earns its space.
+- **Diagrams**: `style-guide/diagrams.mdx` for when a diagram is the right shape and what it should look like.
 
 When the user invokes `/humanizer`, that skill applies the rules from `writing.mdx` directly.
 

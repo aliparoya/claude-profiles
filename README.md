@@ -1,49 +1,45 @@
-# Docusaurus template
+# Claude Profiles
 
-A pre-wired [Docusaurus 3](https://docusaurus.io/) starter with MUI components, a humanizer-grade style guide, and a `create-doc` skill that drafts pages to a fixed quality bar.
+How to actually understand your agent harness.
 
-## What is in the box
+Live: https://aliparoya.github.io/claude-profiles/
 
-- **Docusaurus 3** with TypeScript, Mermaid, KaTeX, ideal-image, image-zoom, and client-redirects.
-- **MUI** (`@mui/material` 7, `@mui/x-*` 8) wired through `src/theme/Root.tsx` so any MDX page can import and render MUI components without extra setup. Theme overrides live in `src/theme/mui/`.
-- **Style guide** at `docs/style-guide/` covering voice, brand, imagery, diagrams, presentations, and an MDX cheat sheet.
-- **`create-doc` skill** at `.claude/skills/create-doc/SKILL.md` that drafts a doc against a fixed six-section template and applies the humanizer rules every time.
-- **CI workflows** for build/typecheck and security scanning, plus `.coderabbit.yaml`, `.gitleaks.toml`, and a pre-commit config.
+## What this is
 
-## Usage
+A documentation hub arguing for opinionated profile management for Claude Code. Each context (work vs. personal, doc-authoring vs. code-review) gets its own shell alias that replaces Claude Code's system prompt instead of layering on top of it, and defers MCP and tool loading. The argument is structural: you can offload code work and even thinking to an agent, but you cannot offload understanding what's loaded into its context.
+
+Audience: engineers ramping up on AI tooling who are starting to install plugins, skills, and MCPs without a clear model of what each one injects.
+
+## Local development
 
 ```bash
 pnpm install
-pnpm start                    # dev server at http://localhost:3000
+pnpm start                    # http://localhost:3000
 pnpm run build                # static build into ./build
-just serve                    # dev detached
-just stop                     # stop dev
+just serve                    # detached dev server (logs in .local/logs)
+just stop                     # stop it
 ```
 
-Dev hot-reloads from `docs/` and `src/`.
+Dev server hot-reloads from `docs/`, `blog/`, and `src/`.
 
-## What to change after cloning
+## Stack
 
-1. `package.json` — `name`.
-2. `docusaurus.config.ts` — `title`, `tagline`, `url`, `baseUrl`, `organizationName`, `projectName`, navbar/footer GitHub URL.
-3. `src/components/HomepageFeatures/index.tsx` and `src/pages/index.tsx` — the landing page copy and CTAs.
-4. `blog/authors.yml` — replace the placeholder author entry, or delete the blog dir.
-5. `static/img/logo.svg` and `favicon.ico` — your brand mark.
-6. `CLAUDE.md` — adjust the project-specific bits at the top once you know what the project is.
+- Docusaurus 3 with TypeScript
+- MUI 7 wired via `src/theme/Root.tsx`
+- Mermaid, KaTeX, ideal-image, image-zoom, client-redirects via Docusaurus plugins
+- GitHub Pages, deployed by `.github/workflows/deploy.yml` on push to main
 
 ## Layout
 
 ```
-docs/                Authored MDX content
+docs/                Published MDX content
 blog/                Dated MDX posts
+style-guide/         Internal authoring rules (not published, used by the create-doc skill)
 src/components/      ComponentDemo, TokenDemo, SlideDeck, HomepageFeatures
-src/theme/Root.tsx   Wraps the app in MUI ThemeProvider
-src/theme/mui/       MUI theme overrides (palette, components, typography, shadows)
-static/              Favicon, logo, social card, sample SVGs
-.claude/skills/      create-doc skill for AI-assisted doc drafting
-.github/workflows/   CI build + security scans
+src/theme/Root.tsx   MUI ThemeProvider wrapper
+src/theme/mui/       MUI theme overrides
+src/pages/           Custom React pages (homepage)
+static/              Favicon, logo, social card
+.claude/skills/      create-doc skill that drafts pages against style-guide/
+.github/workflows/   CI, Pages deploy, security scans
 ```
-
-## Deployment
-
-Static output drops into `build/`. Publish anywhere static (GitHub Pages, S3, Netlify, Cloudflare Pages, your own bucket). For GitHub Pages, set `url`, `baseUrl`, `organizationName`, and `projectName` in `docusaurus.config.ts` and run `pnpm run deploy` from a machine with push access.

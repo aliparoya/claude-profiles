@@ -2,7 +2,7 @@
 
 Documentation hub for opinionated profile management for Claude Code: shell-alias driven contexts that replace the system prompt instead of layering on top of it, with deferred tool loading. The site exists to argue the case (against plugin and skill sprawl) and to show the setup. Audience is engineers ramping up on AI usage who need to understand the harness before installing more of it.
 
-All documentation is held to the `/humanizer` skill standards: no AI-flavoured prose, no em dashes ever. The full voice and tone reference lives in `docs/style-guide/writing.mdx`.
+All documentation is held to the `/humanizer` skill standards: no AI-flavoured prose, no em dashes ever. The full voice and tone reference lives in `style-guide/writing.mdx`.
 
 ## What this repo is
 
@@ -41,7 +41,7 @@ Generate images with `dcli image generate --prompt "..." --slug my-slug --model 
 
 Credentials come from the active dcli profile (apiKey or 1Password reference), with `GEMINI_API_KEY` as a final fallback. No keys are stored on disk.
 
-Prompt patterns live in `docs/style-guide/image-prompts.mdx`.
+Prompt patterns live in `style-guide/image-prompts.mdx`.
 
 ## TypeScript / React conventions
 
