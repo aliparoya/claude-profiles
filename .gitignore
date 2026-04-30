@@ -33,3 +33,6 @@ pnpm-debug.log*
 
 # Local runtime state (PIDs, logs from `just serve`)
 /.local/
+
+# Claude Code transient state
+.claude/scheduled_tasks.lock
