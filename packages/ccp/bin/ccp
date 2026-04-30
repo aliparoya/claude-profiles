@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+# ccp — Claude Code launcher with profile support.
+#
+# Subcommands:
+#   ccp                        run the default profile (launcher)
+#   ccp <profile>              run a named profile (launcher)
+#   ccp list                   list available profiles
+#   ccp init                   bootstrap ~/.claude-shared from packaged templates
+#   ccp extract-baseline ...   capture the baseline system prompt
+#   ccp capture-active ...     capture the live request body from your real config
+#   ccp prompt-diff ...        compare two captures
+#   ccp tools-audit ...        break down per-tool token cost in a capture
+#   ccp -h | --help            show this help
+#
+# Single account
+#   ccp max
+#   ccp fast -- -p "summarize"
+#
+# Multiple AWS SSO profiles — wrap with shell aliases:
+#   alias ccp-prod='AWS_PROFILE=prod ccp'
+#   alias ccp-dev='AWS_PROFILE=dev  ccp'
+#
+# First-time setup
+#   ccp init     # writes profiles + settings + baseline-prompt.txt to ~/.claude-shared
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PKG_ROOT="$(dirname "$SCRIPT_DIR")"
+LIB="$PKG_ROOT/lib"
+TEMPLATES="$PKG_ROOT/templates"
+
+case "${1:-}" in
+    init)
+        shift
+        exec "$LIB/init.sh" --templates "$TEMPLATES" "$@"
+        ;;
+    extract-baseline)
+        shift
+        exec "$LIB/extract-baseline.sh" "$@"
+        ;;
+    capture-active)
+        shift
+        exec "$LIB/capture-active.sh" "$@"
+        ;;
+    prompt-diff)
+        shift
+        command -v python3 >/dev/null || { echo "ccp: python3 required for prompt-diff" >&2; exit 1; }
+        exec python3 "$LIB/prompt-diff.py" "$@"
+        ;;
+    tools-audit)
+        shift
+        command -v python3 >/dev/null || { echo "ccp: python3 required for tools-audit" >&2; exit 1; }
+        exec python3 "$LIB/tools-audit.py" "$@"
+        ;;
+    -h|--help|help)
+        awk 'NR==1{next} /^[^#]/{exit} {sub(/^# ?/,""); print}' "$0"
+        exit 0
+        ;;
+    *)
+        # Anything else (no args, a profile name, a flag) flows to the launcher.
+        exec "$LIB/launcher.sh" "$@"
+        ;;
+esac

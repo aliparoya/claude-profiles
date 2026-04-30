@@ -1,0 +1,67 @@
+---
+title: The context stack
+sidebar_position: 1
+---
+
+# The context stack
+
+![The context stack](/img/generated/context-stack-hero.jpg)
+
+Everything in your context window came from somewhere. The layers, in roughly the order they're injected:
+
+1. The harness system prompt: a multi-thousand-token block from claude-code or claude.ai before you say a word.
+2. API-side injections: whatever the model provider adds at the API layer, often invisible to the harness.
+3. MCPs: each server you connect injects a tool catalogue and any server-supplied instructions.
+4. Skills: descriptions visible to the session, plus their resources when invoked.
+5. CLAUDE.md: project and user-level files merged into the system message.
+6. Plugins: composite installs that can ship skills, hooks, agents, and slash commands. One plugin can multiply every prior layer.
+
+When the model behaves unexpectedly, the cause is usually in a layer you don't remember loading.
+
+## The system prompt
+
+The biggest hidden layer. The harness wraps your session in a system prompt you didn't write, before your first message lands. The contents differ between claude.ai and claude-code, even with the same model.
+
+The claude-code baseline runs about 6,400 tokens of guidance on a current build (~25,600 chars; capture yours with `ccp extract-baseline`). It covers tool use, commit behavior, git handling, confirmation gates, voice rules, and a memory subsystem that runs ~3,000 tokens on its own. The claude.ai baseline targets a different surface: conversation behavior, refusal patterns, assistant persona.
+
+The reference setup on this site replaces the claude-code baseline with a 4,500-token rewrite. The diff is on [Measure your setup](../measure). Read the section deltas there before deciding whether replacement makes sense for your workflow.
+
+If you only ever use one surface, you might assume the model "just behaves that way." Switch surfaces and behavior changes. The model is the same. The wrapper is different.
+
+## MCPs and skills
+
+The easiest layers to underestimate. Each connected MCP server injects a tool catalogue and any server-supplied instructions into your session. Each enabled skill injects its description, and on invocation, its resources.
+
+The catalog grows fast. On a session captured with `ccp tools-audit` and `ENABLE_TOOL_SEARCH=true`, the upfront tool surface was nine tools totalling ~9,100 tokens. With tool-search off, every MCP tool ships its full schema upfront, and a non-trivial MCP setup adds many thousands of tokens more. `Agent` and `Bash` alone can be 65% of the upfront tool budget.
+
+Setting `ENABLE_TOOL_SEARCH=true` in claude-code keeps tool *names* in your context but defers full schema injection until the tool is actually selected. The exact saving depends on your MCP catalog; run `ccp tools-audit` on a capture to see yours.
+
+To inspect what's loaded, run `/mcp` to list active servers and their tools. Read each enabled skill's frontmatter to see what its description costs. Disable anything you don't actively use; re-enabling is one config edit.
+
+## Plugins
+
+The riskiest install in the stack. One plugin can ship skills, hooks, agents, slash commands, and MCP definitions, and they compound on every previous layer.
+
+The trouble is the bundle. You install one thing for one feature, and the rest comes along. The settings menu doesn't always make it obvious what's been added. Behavior changes across sessions and the cause is in a plugin's hook you forgot was enabled.
+
+Before installing, read the plugin's manifest:
+
+- What slash commands does it register?
+- What skills does it ship?
+- What hooks does it install, and on which events?
+- Does it bundle agents?
+- Does it require an MCP server?
+
+If the manifest is opaque, treat it as suspect. The cost is paid every session you have it loaded.
+
+Plugins are worth their cost when they're the canonical install for a workflow you actively use, like a language LSP or a code-review tool you run on every change. They're worth less as decoration.
+
+## Your CLAUDE.md
+
+The one layer you fully control. CLAUDE.md files merge into the system message at session start. There are two scopes.
+
+Project files at `<repo>/CLAUDE.md` load for any session opened inside that working tree. Use them for project conventions, frameworks, and build commands. Anything a teammate working on the same repo would also want loaded is fair game; voice and personal preferences are out of scope.
+
+User files at `~/.claude/CLAUDE.md` (or per-profile equivalents) load for every session you start. Use them for personal voice, repeating reminders, account-wide preferences. Avoid encoding project-specific details here; they bleed across contexts and create noise.
+
+CLAUDE.md is easy to write once and forget. Re-read yours every few months. Rules that helped six months ago may now be obsolete or contradict current habits.

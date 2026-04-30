@@ -1,0 +1,98 @@
+---
+title: Measure your setup
+description: Capture the harness baseline, capture your real session, diff them. The proof under the rest of the argument.
+sidebar_position: 1
+---
+
+# Measure your setup
+
+Before deciding what to keep and what to cut, look at what you're already shipping. Two captures plus a diff is the whole protocol.
+
+## What ccp captures
+
+`ccp` ships four subcommands that probe your context:
+
+|command|what it captures|
+|-|-|
+|`ccp extract-baseline -o baseline.txt`|the system prompt the harness ships, with no user `CLAUDE.md`, plugins, skills, or MCP servers layered in|
+|`ccp capture-active -o active.json`|the full `/v1/messages` POST body your real session sends on its first turn|
+|`ccp prompt-diff A B`|section-aware unified diff between two captures, with byte and token deltas|
+|`ccp tools-audit <capture>`|per-tool schema cost, totals, and tool-search detection|
+
+No real Anthropic or Bedrock call is made. A local mock server intercepts the first POST and returns a synthetic stream so `claude` exits cleanly. No credentials needed.
+
+The reference implementation lives in [`packages/ccp/lib/`](https://github.com/your-org/your-repo/tree/main/packages/ccp/lib): two bash scripts and two Python utilities, ~600 lines combined.
+
+## Baseline vs. ccp's replacement
+
+`ccp prompt-diff` between the harness baseline and the replacement at `~/.claude-shared/system-prompt.txt`:
+
+|metric|harness baseline|ccp replacement|delta|
+|-|-|-|-|
+|system chars|25,624|18,061|-7,563|
+|system ~tokens|6,406|4,515|-1,891|
+
+About 30% smaller, every turn, every session, every account. Section sizes show what moved:
+
+```text
+section                               harness  ccp     delta
+------------------------------------  -------  ------  -------
+auto memory (with subsections)        12,303   0       -12,303
+Text output (does not apply to tools)  1,295   0        -1,295
+Context management                       157   0          -157
+Conversational output                      0   710        +710
+Document generation                        0   1,636    +1,636
+Committing changes with git                0   3,695    +3,695
+Creating pull requests                     0   1,660    +1,660
+```
+
+The entire `auto memory` subsystem (~12.3K characters across six subsections) is gone. In its place: explicit guidance for output voice, document generation, and the git and PR workflow that fits how the work actually happens. Trimming for size alone is wrong; trimming because the harness defaults bury what you care about is right.
+
+## Tool surface
+
+`ccp tools-audit` on the active `/v1/messages` body of a real session, with `ENABLE_TOOL_SEARCH=true`:
+
+```text
+metric                 value
+---------------------  -----------------
+model                  claude-sonnet-4-6
+tools shipped upfront  9
+schema bytes           36,509
+schema ~tokens         9,127
+system chars           26,768
+system ~tokens         6,692
+combined ~tokens       15,819
+tool-search active     yes
+```
+
+Read it: about 15,800 input tokens are spent before the user says a word. Of that, 58% is tool schemas. Nine tools. With tool-search off, every MCP tool's full schema ships upfront, and a non-trivial MCP setup adds many thousands of tokens more.
+
+The top-of-list table from the same audit:
+
+```text
+#  tool        bytes   ~tokens  share
+-  ----------  ------  -------  ------
+1  Agent       11,996  2,999     32.9%
+2  Bash        11,791  2,947     32.3%
+3  Grep        3,393   848        9.3%
+4  Read        2,486   621        6.8%
+5  Skill       1,713   428        4.7%
+6  Edit        1,702   425        4.7%
+7  ToolSearch  1,440   360        3.9%
+8  Write       1,022   255        2.8%
+9  Glob        966     241        2.6%
+```
+
+`Agent` and `Bash` alone are 65% of the upfront tool budget. Worth understanding what each one buys before deciding it stays in.
+
+## How to read these numbers
+
+Token estimates are 4 chars/token, a rough heuristic accurate to roughly 10% for relative comparison. For exact accounting, sample captures with the production tokenizer.
+
+The captures are single-turn. Multi-turn behavior (tool calls, hooks, compaction) adds layers this protocol does not probe.
+
+The captured `system` field is one or more text blocks with `cache_control` set; the harness caches static prefixes between turns. So the per-turn billable cost is smaller than the upfront cost the first turn pays. The cache only helps when the prefix is stable, which is another argument for picking a baseline you control.
+
+## Next
+
+Now that there is a number under the claim, [profile structure](../profile-structure) prescribes the shape of a profile, and [build your own](../build-your-own) walks through assembly.

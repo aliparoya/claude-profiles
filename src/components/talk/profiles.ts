@@ -140,7 +140,7 @@ export function expansionForProfile(p: Profile): string {
   if (p.body) claudeArgs.push(`--append-system-prompt '<body of ${p.name}.md>'`);
 
   const out: string[] = [];
-  out.push(`$ ccb ${p.name}`);
+  out.push(`$ ccp ${p.name}`);
   out.push("");
   out.push("# resolves to:");
   out.push("");

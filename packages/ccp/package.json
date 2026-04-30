@@ -1,0 +1,39 @@
+{
+  "name": "@your-org/ccp",
+  "version": "0.1.0",
+  "description": "Profile-based launcher for Claude Code. Single binary, init-once setup, works with single-account or multi-AWS-profile Bedrock setups.",
+  "license": "MIT",
+  "bin": {
+    "ccp": "bin/ccp"
+  },
+  "files": [
+    "bin/",
+    "lib/",
+    "templates/",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "os": [
+    "darwin",
+    "linux"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "claude-code",
+    "bedrock",
+    "anthropic",
+    "cli",
+    "profile",
+    "launcher"
+  ],
+  "homepage": "https://github.com/your-org/your-repo",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/your-repo.git",
+    "directory": "packages/ccp"
+  }
+}

@@ -1,0 +1,80 @@
+---
+title: Profile structure
+sidebar_position: 1
+---
+
+# Profile structure
+
+![Profile structure](/img/generated/profile-structure-hero.jpg)
+
+A profile is a self-contained context configuration. One file per profile, plus shared config that every profile inherits. Every per-session lever the harness exposes (model, system prompt, appended instructions, env) lives in the profile file itself; everything that should apply to every session (settings, MCP catalog, the replacement system prompt, statusline) lives once in shared config and is referenced by path.
+
+Profiles solve two problems. The first is reproducibility: a flag you typed two weeks ago is forgotten, a profile in version control is not. The second is cost: different work needs different effort levels and models, and profiles let you pick the right tier per session without rewriting your alias every time.
+
+## Anatomy
+
+A profile picks the model, decides whether to replace or inherit the harness baseline system prompt, optionally adds appended instructions on top of that prompt, and lists any env vars to export before the harness execs. The system prompt and any shared MCP config live elsewhere on disk; the profile points at them by path.
+
+## Replace vs append
+
+The harness gives you two ways to influence the system prompt.
+
+|flag|effect|
+|-|-|
+|`--system-prompt-file <path>`|Replace the harness baseline with the file's contents|
+|`--append-system-prompt <text>`|Add text after the harness baseline|
+
+Most people start with append. It feels safe: keep the defaults, layer on what's missing. The cost is invisible. You're now reading on top of multiple thousands of tokens you didn't audit.
+
+Replace is louder up front. You hand the harness a prompt you wrote (or a copy of the baseline you've trimmed). The session starts from a baseline you can read in one screen.
+
+Replace fits when you've read the baseline and want to trim it, when you're paying per token, or when you want a different voice than the harness ships with. Append fits when you're tweaking rather than rewriting, or when you're prototyping a profile and don't want to commit to a fork yet.
+
+The rest of this site assumes you're moving toward replace for the profiles you use daily, with append reserved for one-off layers.
+
+## File format
+
+A profile is a single text file. Markdown with YAML frontmatter works. So does a plain shell-variable file or JSON. The format matters less than the discipline: every profile uses the same shape so the launcher can parse them mechanically.
+
+Frontmatter for the levers, body for the appended instructions:
+
+```markdown
+---
+description: One line shown in `profile list`.
+model: claude-sonnet-4-5
+system_prompt_file: ~/.profiles/baseline.txt
+env:
+  CLAUDE_CODE_EFFORT_LEVEL: max
+---
+
+Free-form markdown body. Sent to the harness as `--append-system-prompt`,
+layered on top of the baseline above.
+```
+
+Why this shape: frontmatter is structured and easy to parse in shell, the body is unstructured and holds whatever appended guidance fits, and one file is one profile (no hidden inheritance, no implicit composition).
+
+Long instructions belong in the body or in the system prompt file, not in frontmatter values. Frontmatter is for switches; body is for prose.
+
+## Profile shapes
+
+Useful patterns to start from. None of these are prescriptions. They're named intents you can map to your own files.
+
+### Max effort
+
+For deep architectural work or hard debugging. Top-tier model, max effort level, full baseline. Worth the spend when judgment matters more than speed.
+
+### Fast and cheap
+
+For commits, summaries, single-file edits, anything where the answer is mostly mechanical. Smaller model, low effort, optionally a short replacement prompt.
+
+### Planning agent
+
+For investigation work where you want a brief or a plan, not edits. Capable model, replaced prompt that forbids edits and asks for a plan, optionally a body that names the format.
+
+### Writer
+
+For prose work. Replaced prompt that drops the coding scaffolding, body with voice rules.
+
+### Raw
+
+When you want to override the harness baseline entirely and bring your own scaffolding. Replaced prompt pointing at a one-paragraph baseline, no body.

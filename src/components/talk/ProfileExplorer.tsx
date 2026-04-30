@@ -230,7 +230,7 @@ export default function ProfileExplorer() {
       >
         <PanelHeader
           title="what runs"
-          caption={current ? `ccb ${current.name}` : ""}
+          caption={current ? `ccp ${current.name}` : ""}
         />
         <Box
           className="talk-prompt-panel"
