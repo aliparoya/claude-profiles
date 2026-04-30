@@ -29,7 +29,7 @@ ccp max -- -p "summarize"      # named profile, prompt forwarded to claude
 
 The launcher (`packages/ccp/lib/launcher.sh`) is the reference implementation for everything below. It's about 140 lines: profile resolution, frontmatter parsing, env export, prompt-file plumbing, and a few details a teaching skeleton skips (typo rejection, `--mcp-config` wiring, `CLAUDE_PROFILE` export, the `ANTHROPIC_API_KEY` unset that's needed when Bedrock auth lives next to a stray Anthropic key in your shell).
 
-The rest of this page rebuilds a smaller version from scratch so the moving parts are visible. If you'd rather just use `ccp` and skip the assembly, jump to [reference setup](../reference-setup) for the working profiles and shared config.
+The rest of this page rebuilds a smaller version from scratch so the moving parts are visible. If you'd rather just use `ccp` and skip the assembly, jump to [reference setup](../reference-setup/index.mdx) for the working profiles and shared config.
 
 ## Directory layout
 

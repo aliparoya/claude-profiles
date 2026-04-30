@@ -7,7 +7,6 @@ export default function Slide3() {
     <Layout title="Profiles" noFooter>
       <SlideFrame
         prev="/talk/slide-2"
-        next="/talk/slide-4"
         letterbox="#f4f6f8"
         fullBleed
         navWidth="6%"
