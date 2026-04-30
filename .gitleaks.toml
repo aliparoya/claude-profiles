@@ -1,0 +1,10 @@
+# Gitleaks configuration — allowlist generated artifacts and example files
+
+[allowlist]
+description = "Allow build output and example values"
+paths = [
+    '''build/.*''',
+    '''\.docusaurus/.*''',
+    '''.*\.example$''',
+    '''.*\.example\..*''',
+]

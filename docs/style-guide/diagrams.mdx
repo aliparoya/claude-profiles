@@ -1,0 +1,37 @@
+---
+title: Diagrams
+description: Aesthetic direction for diagrams. When to draw one, what shape it should take, and what to leave out.
+---
+
+# Diagrams
+
+A diagram earns its space when the structure of the idea is the point. If the words can carry the structure on their own, write the words.
+
+## When Mermaid is right
+
+Mermaid is the default for anything where the content is the message and the style is the messenger. Architecture sketches, request flows, state machines, sequences. The plugin renders inline, the source stays diffable, and the reader sees the same shapes you intended.
+
+For the code-block syntax, see the [MDX reference](./mdx-reference).
+
+## When to hand-author SVG or generate an image
+
+When the diagram carries visual weight (a marketing page, a section header, a slide that needs to feel finished), Mermaid is the wrong tool. Hand-author the SVG, or generate an image with the same care a photograph would get. These are the pieces that get screenshotted and shared, so they should hold up at full size.
+
+## When the answer is a photograph
+
+A photograph is not a diagram. If the question is "what does the place look like" or "what does the work look like", reach for the camera. See [images](./images).
+
+## Aesthetic preferences
+
+- **Thin line-work over heavy fills.** Strokes carry the structure. Fills compete with the labels.
+- **Labels over implied meaning.** A box with a name beats a clever shape that the reader has to decode. The diagram is not a quiz.
+- **Restraint with color.** One accent for the thing the reader should look at first. The rest in neutrals. Not a rainbow.
+- **Clear hierarchy.** The most important node sits at the top, or the leftmost, or the largest. Pick one rule and follow it through the figure.
+- **Generous whitespace.** Crowding makes a diagram feel cheap. Let the boxes breathe.
+
+## What to avoid
+
+- Three-dimensional perspective on a flow chart. Flat reads better.
+- Drop shadows and bevels. The diagram is not a button.
+- Every node a different shape. Pick two shapes for two roles.
+- Text inside a node that wraps to four lines. Either shorten the label or split the node.

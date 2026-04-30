@@ -1,0 +1,111 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+
+language: "en-US"
+tone_instructions: "Be concise and actionable. Skip preamble. State the issue, explain why it matters, and give a concrete fix. No filler phrases."
+early_access: false
+
+reviews:
+  profile: "chill"
+  request_changes_workflow: false
+  high_level_summary: true
+  high_level_summary_in_walkthrough: false
+  collapse_walkthrough: false
+  sequence_diagrams: false
+  review_status: true
+  commit_status: true
+  estimate_code_review_effort: false
+  assess_linked_issues: true
+  related_issues: true
+  related_prs: true
+  suggested_labels: true
+  auto_apply_labels: false
+  suggested_reviewers: false
+  poem: false
+  abort_on_close: true
+  disable_cache: false
+
+  auto_review:
+    enabled: true
+    auto_incremental_review: false
+    drafts: false
+    ignore_title_keywords:
+      - "WIP"
+      - "DO NOT MERGE"
+      - "DRAFT"
+
+  path_filters:
+    - "!**/node_modules/**"
+    - "!**/build/**"
+    - "!**/.docusaurus/**"
+    - "!**/pnpm-lock.yaml"
+    - "!**/*.svg"
+    - "!**/*.png"
+    - "!**/*.jpg"
+    - "!**/*.ico"
+
+  path_instructions:
+    - path: "docs/**/*.{md,mdx}"
+      instructions: |
+        Review as documentation content. Check for:
+        - Clear, plain language. Flag AI-writing tells (em-dashes, "crucial/vital/pivotal", rule-of-three lists).
+        - Accurate technical claims. Flag unverifiable statements or hand-wavy code examples.
+        - Working internal links and image paths. Flag broken references.
+        - Consistent terminology across pages. Flag conflicting definitions of the same concept.
+        - Code blocks specify language for syntax highlighting.
+        - Page stays focused on one concept. Flag pages that grow past ~3 major headings into unrelated territory.
+    - path: "blog/**/*.{md,mdx}"
+      instructions: |
+        Review as blog posts. Same content standards as docs plus:
+        - Frontmatter is valid (title, authors, tags, date).
+        - Author and tag references exist in blog/authors.yml and blog/tags.yml.
+    - path: "src/**/*.{ts,tsx}"
+      instructions: |
+        Review TypeScript/React components with these preferences:
+        - Strict mode, no `any`.
+        - Named interfaces for component props and function signatures.
+        - `??` for defaults, not `||`.
+        - Named constants for magic numbers.
+        - Prefer immutability (const, spread, no in-place mutation).
+        - Let errors propagate; don't swallow them in try/catch unless handling meaningfully.
+        - No silent fallbacks.
+    - path: "docusaurus.config.ts"
+      instructions: |
+        Docusaurus site config. Keep review light — flag obvious misconfigs (bad baseUrl, invalid plugin options) rather than style.
+    - path: "sidebars.ts"
+      instructions: |
+        Sidebar structure. Flag orphaned items or references to files that don't exist.
+
+  finishing_touches:
+    docstrings:
+      enabled: false
+    unit_tests:
+      enabled: false
+
+  pre_merge_checks:
+    title:
+      mode: "warning"
+    description:
+      mode: "warning"
+
+  tools:
+    gitleaks:
+      enabled: true
+    markdownlint:
+      enabled: true
+    yamllint:
+      enabled: true
+    actionlint:
+      enabled: true
+
+chat:
+  auto_reply: false
+  art: false
+
+knowledge_base:
+  opt_out: false
+  learnings:
+    scope: "auto"
+  issues:
+    scope: "local"
+  pull_requests:
+    scope: "local"

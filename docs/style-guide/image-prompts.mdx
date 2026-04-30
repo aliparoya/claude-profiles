@@ -1,0 +1,98 @@
+---
+title: Image prompting guide
+description: Prompt patterns for generating imagery that fits the project's look.
+---
+
+# Image prompting guide
+
+This page is the reference for writing prompts that produce usable imagery. The advice applies to most modern image models (Gemini, Imagen, and similar). All of them respond better to rich, paragraph-length descriptions than to keyword lists.
+
+## Core principles
+
+- Write a scene, not a keyword list. Describe what is in frame, where the camera sits, and what the light is doing.
+- Put the subject first, the setting second, the mood third, the style last.
+- Prefer concrete nouns to abstractions. "A worn leather satchel" beats "a nice bag".
+- Say what you want, not what you do not want. Negative phrasing ("no people", "without text") is unreliable.
+- Short prompts produce generic results. If you want something specific, spend the words.
+
+## Template
+
+```text
+[Subject] [action or state], [setting / environment], [lighting], [camera or composition], [style or medium].
+```
+
+Example:
+```text
+A single red apple resting on a raw linen cloth, natural window light from the left, shallow depth of field, medium close-up, editorial product photography.
+```
+
+## Photographic prompts
+
+Give the camera real language. Lens, aperture, distance, and framing all change the output.
+
+- **Lens feel**: `35mm`, `50mm prime`, `85mm portrait`, `macro`, `wide-angle`.
+- **Aperture**: `f/1.8 with soft bokeh`, `f/8 deep focus`.
+- **Framing**: `close-up`, `medium shot`, `full body`, `overhead`, `dutch angle`.
+- **Light**: `golden hour backlight`, `overcast diffuse light`, `single hard spotlight from above`, `studio softbox at 45 degrees`.
+
+Example:
+```text
+Portrait of a ceramicist in her studio, sitting at a pottery wheel with clay on her hands, warm afternoon light through a dusty window, 85mm f/1.8 shallow depth of field, documentary style.
+```
+
+## Illustration and graphic prompts
+
+For non-photographic output, lead with the medium so the model does not drift toward photorealism.
+
+- **Medium**: `flat vector illustration`, `gouache painting`, `pencil sketch`, `isometric 3D render`, `retro comic inking`.
+- **Palette**: name colors or evoke a palette (`muted desert palette`, `two-tone navy and mustard`).
+- **Line and fill**: `thick black outlines with flat fills`, `no outlines, soft gradients`.
+
+Example:
+```text
+Flat vector illustration of a mountain observatory at dusk, isometric angle, two-tone navy and warm orange palette, clean geometric shapes, no outlines, subtle grain texture.
+```
+
+## Text in images
+
+Text rendering is the weakest part of most image models. Keep strings short, quote them, and specify placement.
+
+```text
+A minimalist poster with the words "Deploy Friday" in large bold serif, centered, white text on a deep navy background, generous margins.
+```
+
+Long quotes, paragraphs, or specific fonts are unreliable. For anything typographically precise, generate the background and composite the text yourself.
+
+## Aspect ratio
+
+Pick the ratio before you write the prompt. It changes the composition the model reaches for.
+
+- `16:9` wide banners, hero images, landscape editorial.
+- `1:1` social thumbnails, avatars, symmetric compositions.
+- `9:16` mobile hero, vertical video covers.
+- `3:4` or `4:5` portrait editorial, magazine covers, standing figures.
+- `21:9` ultra-wide panoramas.
+
+## Editing and composing with reference images
+
+When a generator accepts a source image, the prompt should describe the change, not re-describe the source.
+
+Good:
+```text
+"Replace the background with a misty pine forest at dawn, keep the subject and lighting unchanged"
+```
+
+Bad (the model has the image already, so restating the scene just adds noise):
+```text
+"A woman in a red coat standing with a misty pine forest behind her"
+```
+
+For multi-image composition, use index references in the prompt (`"place the logo from image 2 on the mug in image 1"`) so the model knows which source to pull from.
+
+## Common failure modes
+
+- **Flat, generic output**: prompt was too short or too adjective-heavy. Add specifics.
+- **Wrong style**: lead with the medium instead of burying it at the end.
+- **Text is garbled**: shorten the string, or composite in post.
+- **Subject duplicated**: strong counts ("one apple", "a single figure") help.
+- **Plastic-looking photo**: ask for specific light and lens, and add texture words (`film grain`, `subtle skin texture`).

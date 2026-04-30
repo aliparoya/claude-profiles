@@ -1,0 +1,174 @@
+.deck {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  margin: 1.5rem 0;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--ifm-card-background-color, #fff);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 4px 16px rgba(0, 0, 0, 0.06);
+  outline: none;
+}
+
+.deck:focus-visible {
+  box-shadow: 0 0 0 3px var(--ifm-color-primary);
+}
+
+[data-theme="dark"] .deck {
+  background: var(--ifm-background-surface-color, #1b1b1d);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.stage {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2.5rem 3rem 3.25rem;
+  opacity: 0;
+  transform: translateX(6px);
+  transition: opacity 240ms ease, transform 240ms ease;
+  pointer-events: none;
+  overflow: auto;
+}
+
+.slideActive {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+.slide > :first-child {
+  margin-top: 0;
+}
+
+.slide > :last-child {
+  margin-bottom: 0;
+}
+
+.slide h1,
+.slide h2,
+.slide h3,
+.slideTitle {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+}
+
+.slide h1 {
+  font-size: clamp(1.6rem, 3vw, 2.5rem);
+}
+
+.slide h2,
+.slideTitle {
+  font-size: clamp(1.3rem, 2.4vw, 2rem);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.zone {
+  position: absolute;
+  top: 0;
+  bottom: 2.25rem;
+  width: 40%;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 0;
+  color: var(--ifm-color-content-secondary);
+  opacity: 0;
+  transition: opacity 160ms ease, background 160ms ease;
+  display: flex;
+  align-items: center;
+}
+
+.zonePrev {
+  left: 0;
+  justify-content: flex-start;
+  padding-left: 0.75rem;
+}
+
+.zoneNext {
+  right: 0;
+  justify-content: flex-end;
+  padding-right: 0.75rem;
+}
+
+.deck:hover .zone,
+.deck:focus-within .zone {
+  opacity: 0.55;
+}
+
+.zone:hover {
+  opacity: 1 !important;
+  background: linear-gradient(
+    to var(--zone-grad-dir, right),
+    rgba(0, 0, 0, 0.06),
+    transparent
+  );
+}
+
+.zoneNext {
+  --zone-grad-dir: left;
+}
+
+.zone:disabled {
+  cursor: default;
+  opacity: 0 !important;
+}
+
+.zone svg {
+  width: 28px;
+  height: 28px;
+}
+
+.footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
+  font-size: 0.8rem;
+  color: var(--ifm-color-content-secondary);
+  background: var(--ifm-background-color);
+  border-top: 1px solid var(--ifm-toc-border-color);
+}
+
+.dots {
+  display: flex;
+  gap: 6px;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ifm-color-emphasis-300);
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  transition: background 120ms ease, transform 120ms ease;
+}
+
+.dot:hover {
+  transform: scale(1.3);
+}
+
+.dotActive {
+  background: var(--ifm-color-primary);
+}
+
+.counter {
+  font-variant-numeric: tabular-nums;
+}
