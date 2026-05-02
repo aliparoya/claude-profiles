@@ -31,7 +31,7 @@
     "@mui/material": "^7.3.10",
     "@mui/x-data-grid": "^9.0.4",
     "@mui/x-data-grid-premium": "^9.0.4",
-    "@mui/x-date-pickers": "^8.28.4",
+    "@mui/x-date-pickers": "^9.0.4",
     "@mui/x-date-pickers-pro": "^8.28.4",
     "@mui/x-license": "^8.26.0",
     "@mui/x-tree-view": "^8.28.3",
